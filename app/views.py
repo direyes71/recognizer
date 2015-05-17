@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from django.shortcuts import render
 
 from rest_framework import status
@@ -13,17 +16,23 @@ from tasks import recognize_photo
 
 class RequestRecognizerList(APIView):
     """
-    List all snippets, or create a new snippet.
+    List all requests, or create a new request.
     """
     def get(self, request, format=None):
-        snippets = RequestRecognizer.objects.all()
-        serializer = RequestRecognizerSerializer(snippets, many=True)
+        requests_rg = RequestRecognizer.objects.all()
+        serializer = RequestRecognizerSerializer(requests_rg, many=True)
         return Response(serializer.data)
 
     def post(self, request, format=None):
         serializer = RequestRecognizerSerializer(data=request.data)
         if serializer.is_valid():
-            register = serializer.save()
-            recognize_photo(register.id) # Run the recognizer task
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            if not RequestRecognizer.objects.filter(access=None): # If not exist a request recognizer - Singleton
+                register = serializer.save()
+                recognize_photo(register.id) # Run the recognizer task
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(
+                    {'message': u'Ya existe una petición de acceso en progreso'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

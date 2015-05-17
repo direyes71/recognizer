@@ -16,3 +16,4 @@ class RequestRecognizer(models.Model):
         default=ACTIVE_STATUS,
     )
     result_recognizer = JSONField(null=True, default=None)
+    access = models.NullBooleanField(null=True, default=None)
