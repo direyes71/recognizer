@@ -8,4 +8,4 @@ from app.models import RequestRecognizer
 class RequestRecognizerSerializer(serializers.ModelSerializer):
     class Meta:
         model = RequestRecognizer
-        fields = ('image',)
+        fields = ('id', 'image',)

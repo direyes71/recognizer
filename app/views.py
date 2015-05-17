@@ -4,9 +4,9 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from app.forms import RequestRecognizerForm
 from app.models import RequestRecognizer
 from app.serializers import RequestRecognizerSerializer
+from tasks import recognize_photo
 
 # Create your views/webServices here.
 
@@ -23,6 +23,7 @@ class RequestRecognizerList(APIView):
     def post(self, request, format=None):
         serializer = RequestRecognizerSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            register = serializer.save()
+            recognize_photo(register.id) # Run the recognizer task
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -41,6 +41,8 @@ INSTALLED_APPS = (
 
 DJANGO_LIB = (
     'rest_framework',
+    'face_client',
+    'jsonfield',
 )
 
 INSTALLED_APPS += DJANGO_LIB
@@ -115,3 +117,6 @@ STATIC_URL = '/static/'
 
 # directory for upload files
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media', 'uploads')
+
+# url to media files
+MEDIA_URL = '/media/'

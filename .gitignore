@@ -55,3 +55,12 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# DB file
+*.sqlite3
+
+# Media uploads
+media/
+
+# Pycharm files
+.idea/
