@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 
 from rest_framework import status
@@ -35,4 +36,38 @@ class RequestRecognizerList(APIView):
                     {'message': u'Ya existe una petición de acceso en progreso'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class RequestRecognizerDetail(APIView):
+    """
+    Retrieve and update a RequestRecognizer instance.
+    """
+    def get_object(self, pk=None):
+        """
+            Only return the current request for recognizer
+        """
+        if pk:
+            return get_object_or_404(RequestRecognizer, pk=pk)
+        request_rg = RequestRecognizer.objects.filter(access=None)
+        if request_rg:
+            return request_rg[0]
+        return None
+
+    def get(self, request, pk=None, format=None):
+        request_rg = self.get_object(pk)
+        if request_rg is None:
+            return Response({'message': u'No hay peticiones pendientes'})
+        serializer = RequestRecognizerSerializer(request_rg)
+        return Response(serializer.data)
+
+    def put(self, request, pk, format=None):
+        request_rg = self.get_object(pk)
+        if not request_rg.access is None:
+            #raise Http404
+            return Response({'message': u'Ya se ha dado respuesta a esta petición'})
+        serializer = RequestRecognizerSerializer(request_rg, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

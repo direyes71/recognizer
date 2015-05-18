@@ -22,6 +22,6 @@ from django.contrib import admin
 from app import urls as app_urls
 
 urlpatterns = [
-    url(r'^recognize/$', include(app_urls)),
+    url(r'^recognize/', include(app_urls)),
     url(r'^admin/', include(admin.site.urls)),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

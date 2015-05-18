@@ -21,6 +21,9 @@ urlpatterns = [
     #url(r'^$', request_photo, name='request_photo'),
 
     # Webservices
+    # Camera
     url(r'^$', RequestRecognizerList.as_view()),
-
+    # Android
+    url(r'^requests/$', RequestRecognizerDetail.as_view()),
+    url(r'^requests/(?P<pk>[0-9]+)/$', RequestRecognizerDetail.as_view()),
 ]
