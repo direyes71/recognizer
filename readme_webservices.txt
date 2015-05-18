@@ -23,3 +23,11 @@ This web service requires a JSON data. Example
 {access: True}
 
 The access parameter can be True or False
+
+
+
+## NOTES ##
+
+If you want see the current database register.
+
+http://52.10.240.204:9000/recognize/
