@@ -1,4 +1,8 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from django.db import models
+import uuid
 
 from jsonfield import JSONField
 
@@ -17,3 +21,16 @@ class RequestRecognizer(models.Model):
     )
     result_recognizer = JSONField(null=True, default=None)
     access = models.NullBooleanField(null=True, default=None)
+    code = models.CharField(max_length=50)
+    bArrayImage = JSONField(null=True, default=None)
+
+    @property
+    def image_to_binary(self):
+        with open(self.image.path, "rb") as f:
+            bin_data = list(bytearray(f.read()))
+            return bin_data
+
+    def save(self, *args, **kwargs):
+        # Create the IdPeticion field
+        self.code = uuid.uuid4()
+        super(RequestRecognizer, self).save(*args, **kwargs)

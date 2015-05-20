@@ -8,6 +8,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from app.data import ACTIVE_STATUS
 from app.models import RequestRecognizer
 from app.serializers import RequestRecognizerSerializer
 from tasks import recognize_photo
@@ -49,7 +50,13 @@ class RequestRecognizerDetail(APIView):
         """
         if pk:
             return get_object_or_404(RequestRecognizer, pk=pk)
-        request_rg = RequestRecognizer.objects.filter(access=None)
+        # Validate that the register was processed:
+        # result_recognizer should be different of None
+        request_rg = RequestRecognizer.objects.filter(
+            access=None,
+            result_recognizer__isnull=False,
+            status=ACTIVE_STATUS,
+        )
         if request_rg:
             return request_rg[0]
         return None
