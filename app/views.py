@@ -31,6 +31,8 @@ class RequestRecognizerList(APIView):
             if not RequestRecognizer.objects.filter(access=None): # If not exist a request recognizer - Singleton
                 register = serializer.save()
                 recognize_photo(register.id) # Run the recognizer task
+                register = RequestRecognizer.objects.get(id=register.id)
+                serializer = RequestRecognizerSerializer(register)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 return Response(
@@ -64,7 +66,15 @@ class RequestRecognizerDetail(APIView):
     def get(self, request, pk=None, format=None):
         request_rg = self.get_object(pk)
         if request_rg is None:
-            return Response({'message': u'No hay peticiones pendientes'})
+            #return Response({'message': u'No hay peticiones pendientes'})
+            # Return empty JSON
+            return Response({
+                'estado': u'false',
+                'idPeticion': '00000000-0000-0000-0000-000000000000',
+                'imagenByteArray': '',
+                'nombreUsuario': '',
+
+            })
         serializer = RequestRecognizerSerializer(request_rg)
         return Response(serializer.data)
 

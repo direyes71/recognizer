@@ -4,6 +4,7 @@ from django.conf import settings
 
 from face_client import FaceClient
 
+from app.data import DEACTIVE_STATUS
 from app.data import LEVEL_RECOGNIZE_HIGH
 from app.data import LEVEL_RECOGNIZE_MEDIUM
 from app.models import RequestRecognizer
@@ -34,13 +35,16 @@ def recognize_photo(request_id):
     # Validate if there are results
     if result['photos'][0]['tags']:
         recognize = None
-        level_recognize = LEVEL_RECOGNIZE_MEDIUM
+        level_recognize = ''
 
         for item in result['photos'][0]['tags'][0]['uids']: # If exists coincidences
             if item['confidence'] >= 70:
                 level_recognize = LEVEL_RECOGNIZE_HIGH
             elif item['confidence'] >= 40 and item['confidence'] < 70:
                 level_recognize = LEVEL_RECOGNIZE_MEDIUM
+            if not recognize and item['confidence'] < 40:
+                request.access = False
+                request.status = DEACTIVE_STATUS
             if not recognize or (recognize and item['confidence'] > recognize['confidence']):
                 recognize = item
                 recognize['uid'] = recognize['uid'].split('@')[0]

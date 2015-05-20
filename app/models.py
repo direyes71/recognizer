@@ -43,10 +43,12 @@ class RequestRecognizer(models.Model):
         """
             This function is for parse "estado" person that was recognized
             for Android
+
+            If exists a register for recognize return true, else return false
         """
-        if self.access is None or self.access is False:
-            return 'false'
-        return 'true'
+        if self.access is None:
+            return u'true'
+        return u'false'
 
     def save(self, *args, **kwargs):
         # Create the IdPeticion field
