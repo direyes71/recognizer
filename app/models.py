@@ -22,7 +22,7 @@ class RequestRecognizer(models.Model):
     result_recognizer = JSONField(null=True, default=None)
     access = models.NullBooleanField(null=True, default=None)
     code = models.CharField(max_length=50)
-    bArrayImage = JSONField(null=True, default=None)
+    imagenByteArray = JSONField(null=True, default=None)
 
     @property
     def image_to_binary(self):
@@ -37,6 +37,16 @@ class RequestRecognizer(models.Model):
             for Android
         """
         return self.result_recognizer['uid']
+
+    @property
+    def get_estado_parameter(self):
+        """
+            This function is for parse "estado" person that was recognized
+            for Android
+        """
+        if self.access is None or self.access is False:
+            return 'false'
+        return 'true'
 
     def save(self, *args, **kwargs):
         # Create the IdPeticion field

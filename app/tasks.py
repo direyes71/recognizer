@@ -14,7 +14,7 @@ def recognize_photo(request_id):
         This task execute the recognizer function
     """
     request = RequestRecognizer.objects.get(id=request_id)
-    request.bArrayImage = request.image_to_binary
+    request.imagenByteArray = request.image_to_binary
     request.save()
 
     # Create one instance of library for connect to webservice

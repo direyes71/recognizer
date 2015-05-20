@@ -10,11 +10,17 @@ from app.models import RequestRecognizer
 
 class RequestRecognizerSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(required=False)
-    IdPeticion = serializers.CharField(source='code', required=False)
+    idPeticion = serializers.CharField(source='code', required=False)
 
     # parse "nombreUsuario" person that was recognized for Android
     nombreUsuario = serializers.CharField(
         source='get_nombre_usuario_parameter',
+        required=False,
+    )
+
+    # parse "estado" person that was recognized for Android
+    estado = serializers.CharField(
+        source='get_estado_parameter',
         required=False,
     )
 
@@ -25,7 +31,8 @@ class RequestRecognizerSerializer(serializers.ModelSerializer):
             'image',
             'result_recognizer',
             'access',
-            'IdPeticion',
+            'idPeticion',
             'nombreUsuario',
-            'bArrayImage',
+            'estado',
+            'imagenByteArray',
         )
