@@ -30,6 +30,14 @@ class RequestRecognizer(models.Model):
             bin_data = list(bytearray(f.read()))
             return bin_data
 
+    @property
+    def get_nombre_usuario_parameter(self):
+        """
+            This function is for parse "nombreUsuario" person that was recognized
+            for Android
+        """
+        return self.result_recognizer['uid']
+
     def save(self, *args, **kwargs):
         # Create the IdPeticion field
         self.code = uuid.uuid4()

@@ -12,6 +12,12 @@ class RequestRecognizerSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(required=False)
     IdPeticion = serializers.CharField(source='code', required=False)
 
+    # parse "nombreUsuario" person that was recognized for Android
+    nombreUsuario = serializers.CharField(
+        source='get_nombre_usuario_parameter',
+        required=False,
+    )
+
     class Meta:
         model = RequestRecognizer
         fields = (
@@ -20,5 +26,6 @@ class RequestRecognizerSerializer(serializers.ModelSerializer):
             'result_recognizer',
             'access',
             'IdPeticion',
+            'nombreUsuario',
             'bArrayImage',
         )
