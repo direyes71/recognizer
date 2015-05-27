@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import json
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 
@@ -46,12 +47,12 @@ class RequestRecognizerDetail(APIView):
     """
     Retrieve and update a RequestRecognizer instance.
     """
-    def get_object(self, pk=None):
+    def get_object(self, code=None):
         """
             Only return the current request for recognizer
         """
-        if pk:
-            return get_object_or_404(RequestRecognizer, pk=pk)
+        if code:
+            return get_object_or_404(RequestRecognizer, code=code)
         # Validate that the register was processed:
         # result_recognizer should be different of None
         request_rg = RequestRecognizer.objects.filter(
@@ -63,8 +64,8 @@ class RequestRecognizerDetail(APIView):
             return request_rg[0]
         return None
 
-    def get(self, request, pk=None, format=None):
-        request_rg = self.get_object(pk)
+    def get(self, request, format=None):
+        request_rg = self.get_object()
         if request_rg is None:
             #return Response({'message': u'No hay peticiones pendientes'})
             # Return empty JSON
@@ -73,17 +74,25 @@ class RequestRecognizerDetail(APIView):
                 'idPeticion': '00000000-0000-0000-0000-000000000000',
                 'imagenByteArray': '',
                 'nombreUsuario': '',
-
             })
         serializer = RequestRecognizerSerializer(request_rg)
         return Response(serializer.data)
 
-    def put(self, request, pk, format=None):
-        request_rg = self.get_object(pk)
+    def put(self, request, format=None):
+        from django.utils.datastructures import MultiValueDict
+        data = MultiValueDict(request.data)
+        data['access'] = json.loads(data['estado'])
+
+        request_rg = self.get_object(data['idPeticion'])
+
+        # Delete invalid parameters
+        del data['estado']
+        del data['idPeticion']
+
         if not request_rg.access is None:
             #raise Http404
             return Response({'message': u'Ya se ha dado respuesta a esta petición'})
-        serializer = RequestRecognizerSerializer(request_rg, data=request.data)
+        serializer = RequestRecognizerSerializer(request_rg, data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)

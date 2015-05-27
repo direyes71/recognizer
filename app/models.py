@@ -51,6 +51,7 @@ class RequestRecognizer(models.Model):
         return u'false'
 
     def save(self, *args, **kwargs):
-        # Create the IdPeticion field
-        self.code = uuid.uuid4()
+        if self.id is None:
+            # Create the IdPeticion field
+            self.code = uuid.uuid4()
         super(RequestRecognizer, self).save(*args, **kwargs)
