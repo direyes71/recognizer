@@ -56,7 +56,7 @@ class RequestRecognizerDetail(APIView):
         # Validate that the register was processed:
         # result_recognizer should be different of None
         request_rg = RequestRecognizer.objects.filter(
-            access=None,
+            access__isnull=True,
             result_recognizer__isnull=False,
             status=ACTIVE_STATUS,
         )
@@ -79,21 +79,17 @@ class RequestRecognizerDetail(APIView):
         return Response(serializer.data)
 
     def put(self, request, format=None):
-        from django.utils.datastructures import MultiValueDict
-        data = MultiValueDict(request.data)
-        data['access'] = json.loads(data['estado'])
-
-        request_rg = self.get_object(data['idPeticion'])
-
-        # Delete invalid parameters
-        del data['estado']
-        del data['idPeticion']
-
-        if not request_rg.access is None:
+        request_rg = self.get_object()
+        if request_rg is None or not request_rg.access is None:
             #raise Http404
             return Response({'message': u'Ya se ha dado respuesta a esta petición'})
-        serializer = RequestRecognizerSerializer(request_rg, data=data)
+        serializer = RequestRecognizerSerializer(request_rg, data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            rq = serializer.save()
+            if serializer.data['estado'] == 'true':
+                rq.access = True
+            elif serializer.data['estado'] == 'false':
+                rq.access = False
+            rq.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
