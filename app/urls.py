@@ -26,4 +26,5 @@ urlpatterns = [
 
     # Android
     url(r'^requests/$', RequestRecognizerDetail.as_view()),
+    url(r'^requests/response/$', RequestRecognizerResponse.as_view()),
 ]

@@ -47,25 +47,9 @@ class RequestRecognizerDetail(APIView):
     """
     Retrieve and update a RequestRecognizer instance.
     """
-    def get_object(self, code=None):
-        """
-            Only return the current request for recognizer
-        """
-        if code:
-            return get_object_or_404(RequestRecognizer, code=code)
-        # Validate that the register was processed:
-        # result_recognizer should be different of None
-        request_rg = RequestRecognizer.objects.filter(
-            access__isnull=True,
-            result_recognizer__isnull=False,
-            status=ACTIVE_STATUS,
-        )
-        if request_rg:
-            return request_rg[0]
-        return None
 
     def get(self, request, format=None):
-        request_rg = self.get_object()
+        request_rg = get_current_request()
         if request_rg is None:
             #return Response({'message': u'No hay peticiones pendientes'})
             # Return empty JSON
@@ -78,20 +62,43 @@ class RequestRecognizerDetail(APIView):
         serializer = RequestRecognizerSerializer(request_rg)
         return Response(serializer.data)
 
-    def put(self, request, format=None):
-        request_rg = self.get_object()
+
+class RequestRecognizerResponse(APIView):
+    """
+    Response and update a RequestRecognizer instance.
+    """
+
+    def post(self, request, format=None):
+        request_rg = get_current_request()
         if request_rg is None or not request_rg.access is None:
             #raise Http404
             return Response({'message': u'Ya se ha dado respuesta a esta petición'})
         serializer = RequestRecognizerSerializer(request_rg, data=request.data)
         if serializer.is_valid():
-            rq = serializer.save()
             if serializer.data['estado'] == 'true':
-                rq.access = True
+                request_rg.access = True
             elif serializer.data['estado'] == 'false':
-                rq.access = False
-            rq.save()
+                request_rg.access = False
+            request_rg.save()
             return Response({
                 'transaction': u'true',
             })
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+def get_current_request(code=None):
+    """
+        Only return the current request for recognizer
+    """
+    if code:
+        return get_object_or_404(RequestRecognizer, code=code)
+    # Validate that the register was processed:
+    # result_recognizer should be different of None
+    request_rg = RequestRecognizer.objects.filter(
+        access__isnull=True,
+        result_recognizer__isnull=False,
+        status=ACTIVE_STATUS,
+    )
+    if request_rg:
+        return request_rg[0]
+    return None
