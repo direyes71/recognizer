@@ -91,5 +91,7 @@ class RequestRecognizerDetail(APIView):
             elif serializer.data['estado'] == 'false':
                 rq.access = False
             rq.save()
-            return Response(serializer.data)
+            return Response({
+                'transaction': u'true',
+            })
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
