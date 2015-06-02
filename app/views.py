@@ -28,7 +28,10 @@ class RequestRecognizerList(APIView):
     def post(self, request, format=None):
         serializer = RequestRecognizerSerializer(data=request.data)
         if serializer.is_valid():
-            if not RequestRecognizer.objects.filter(access=None): # If not exist a request recognizer - Singleton
+            if not RequestRecognizer.objects.filter(
+                    access=None,
+                    result_recognizer__isnull=False,
+            ): # If not exist a request recognizer - Singleton
                 register = serializer.save()
                 recognize_photo(register.id) # Run the recognizer task
                 register = RequestRecognizer.objects.get(id=register.id)
