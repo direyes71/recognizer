@@ -55,3 +55,13 @@ class RequestRecognizer(models.Model):
             # Create the IdPeticion field
             self.code = uuid.uuid4()
         super(RequestRecognizer, self).save(*args, **kwargs)
+
+    def __str__(self):              # __unicode__ on Python 2
+        if self.result_recognizer:
+            return u'{0} - {1}'.format(
+                self.code,
+                self.result_recognizer['uid'],
+            )
+        return u'{0}'.format(
+             self.code,
+        )
