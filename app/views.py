@@ -32,6 +32,8 @@ class RequestRecognizerList(APIView):
                 register = serializer.save()
                 recognize_photo(register.id) # Run the recognizer task
                 register = RequestRecognizer.objects.get(id=register.id)
+                if register.result_recognizer is None:
+                    return Response({'response': False})
                 serializer = RequestRecognizerSerializer(register)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
