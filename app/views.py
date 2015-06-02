@@ -22,9 +22,8 @@ class RequestRecognizerList(APIView):
     List all requests, or create a new request.
     """
     def get(self, request, format=None):
-        requests_rg = RequestRecognizer.objects.all()
-        serializer = RequestRecognizerSerializer(requests_rg, many=True)
-        return Response(serializer.data)
+        last_request = RequestRecognizer.objects.latest('id')
+        return Response({'response': last_request.access})
 
     def post(self, request, format=None):
         serializer = RequestRecognizerSerializer(data=request.data)
