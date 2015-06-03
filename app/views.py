@@ -40,7 +40,13 @@ class RequestRecognizerList(APIView):
                 if register.result_recognizer is None:
                     return Response({'response': False})
                 serializer = RequestRecognizerSerializer(register)
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                return Response(
+                    {
+                        'response': True,
+                        'msm': 'Su solicitud esta siendo procesada ...',
+                    },
+                    status=status.HTTP_201_CREATED,
+                )
             else:
                 return Response(
                     {'message': u'Ya existe una petición de acceso en progreso'},
