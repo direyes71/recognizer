@@ -38,11 +38,11 @@ def recognize_photo(request_id):
         level_recognize = ''
 
         for item in result['photos'][0]['tags'][0]['uids']: # If exists coincidences
-            if item['confidence'] >= 70:
+            if item['confidence'] >= 80:
                 level_recognize = LEVEL_RECOGNIZE_HIGH
-            elif item['confidence'] >= 40 and item['confidence'] < 70:
+            elif item['confidence'] >= 60 and item['confidence'] < 80:
                 level_recognize = LEVEL_RECOGNIZE_MEDIUM
-            if not recognize and item['confidence'] < 40:
+            if not recognize and item['confidence'] < 60:
                 request.access = False
                 request.status = DEACTIVE_STATUS
             if not recognize or (recognize and item['confidence'] > recognize['confidence']):
