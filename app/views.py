@@ -89,10 +89,7 @@ class RequestRecognizerResponse(APIView):
             #raise Http404
             return Response({'message': u'Ya se ha dado respuesta a esta petición'})
         if request.data.has_key('estado'):
-            if request.data['estado'] == 'true':
-                request_rg.access = True
-            elif request.data['estado'] == 'false':
-                request_rg.access = False
+            request_rg.access = request.data['estado']
             request_rg.save()
             return Response({
                 'transaction': u'true',
