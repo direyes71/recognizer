@@ -120,3 +120,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media', 'uploads')
 
 # url to media files
 MEDIA_URL = '/media/'
+
+# Parse rest_framework
+REST_FRAMEWORK = {
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+    )
+}
