@@ -88,17 +88,19 @@ class RequestRecognizerResponse(APIView):
         if request_rg is None or not request_rg.access is None:
             #raise Http404
             return Response({'message': u'Ya se ha dado respuesta a esta petición'})
-        serializer = RequestRecognizerSerializer(request_rg, data=request.data)
-        if serializer.is_valid():
-            if serializer.data['estado'] == 'true':
+        if request.data.has_key('estado'):
+            if request.data['estado'] == 'true':
                 request_rg.access = True
-            elif serializer.data['estado'] == 'false':
+            elif request.data['estado'] == 'false':
                 request_rg.access = False
             request_rg.save()
             return Response({
                 'transaction': u'true',
             })
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {'error': 'Opss that error!!'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
 
 def get_current_request(code=None):
