@@ -6,6 +6,8 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 
 from rest_framework import status
+from rest_framework.decorators import parser_classes
+from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -22,19 +24,31 @@ class RequestRecognizerList(APIView):
     List all requests, or create a new request.
     """
     def get(self, request, format=None):
-        requests_rg = RequestRecognizer.objects.all()
-        serializer = RequestRecognizerSerializer(requests_rg, many=True)
-        return Response(serializer.data)
+        last_request = RequestRecognizer.objects.latest('id')
+        return Response({'response': last_request.access})
 
     def post(self, request, format=None):
         serializer = RequestRecognizerSerializer(data=request.data)
         if serializer.is_valid():
-            if not RequestRecognizer.objects.filter(access=None): # If not exist a request recognizer - Singleton
+            if not RequestRecognizer.objects.filter(
+                    access=None,
+                    result_recognizer__isnull=False,
+            ): # If not exist a request recognizer - Singleton
                 register = serializer.save()
                 recognize_photo(register.id) # Run the recognizer task
                 register = RequestRecognizer.objects.get(id=register.id)
-                serializer = RequestRecognizerSerializer(register)
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                if register.result_recognizer is None:
+                    return Response(
+                        {'response': False, 'user': None}
+                    )
+                return Response(
+                    {
+                        'response': True,
+                        'msm': 'Su solicitud esta siendo procesada ...',
+                        'user': register.get_nombre_usuario_parameter,
+                    },
+                    status=status.HTTP_201_CREATED,
+                )
             else:
                 return Response(
                     {'message': u'Ya existe una petición de acceso en progreso'},
@@ -63,6 +77,7 @@ class RequestRecognizerDetail(APIView):
         return Response(serializer.data)
 
 
+@parser_classes((JSONParser,))
 class RequestRecognizerResponse(APIView):
     """
     Response and update a RequestRecognizer instance.
@@ -73,17 +88,16 @@ class RequestRecognizerResponse(APIView):
         if request_rg is None or not request_rg.access is None:
             #raise Http404
             return Response({'message': u'Ya se ha dado respuesta a esta petición'})
-        serializer = RequestRecognizerSerializer(request_rg, data=request.data)
-        if serializer.is_valid():
-            if serializer.data['estado'] == 'true':
-                request_rg.access = True
-            elif serializer.data['estado'] == 'false':
-                request_rg.access = False
+        if request.data.has_key('estado'):
+            request_rg.access = request.data['estado']
             request_rg.save()
             return Response({
                 'transaction': u'true',
             })
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {'error': 'Opss that error!!'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
 
 def get_current_request(code=None):
